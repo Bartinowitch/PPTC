@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PPTC Cross Reference Tool – SCHURTER</title>
+<style>
+  :root {
+    --s-blue-dark: #1c3664;
+    --s-blue-mid: #1a5276;
+    --s-blue-light: #2e86c1;
+    --s-blue-pale: #d6eaf8;
+    --s-bg: #f4f6f8;
+    --s-white: #ffffff;
+    --s-border: #d0d7e0;
+    --s-text: #1a1a2e;
+    --s-muted: #6b7c93;
+    --s-green: #1e8449;
+    --s-green-pale: #d5f5e3;
+    --s-red: #c0392b;
+    --radius: 4px;
+    --radius-card: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--s-bg);
+    color: var(--s-text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--s-blue-dark);
+    color: white;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  header .logo-text {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: white;
+  }
+
+  header .title {
+    font-size: 14px;
+    color: rgba(255,255,255,0.65);
+    margin-left: 8px;
+    border-left: 1px solid rgba(255,255,255,0.25);
+    padding-left: 16px;
+  }
+
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  .search-card {
+    background: white;
+    border-radius: var(--radius-card);
+    padding: 28px 32px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+  }
+
+  .search-card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--s-blue-dark);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .search-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .search-row .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--s-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  input[type="text"] {
+    border: 1px solid var(--s-border);
+    border-radius: var(--radius);
+    padding: 9px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--s-text);
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--s-blue-light);
+    box-shadow: 0 0 0 3px rgba(46,134,193,0.12);
+  }
+
+  select {
+    border: 1px solid var(--s-border);
+    border-radius: var(--radius);
+    padding: 9px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--s-text);
+    background: white;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: var(--s-blue-light);
+  }
+
+  .btn {
+    background: var(--s-blue-dark);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 9px 20px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+    height: 38px;
+  }
+
+  .btn:hover { background: var(--s-blue-mid); }
+
+  .btn-clear {
+    background: transparent;
+    color: var(--s-muted);
+    border: 1px solid var(--s-border);
+  }
+
+  .btn-clear:hover { background: var(--s-bg); color: var(--s-text); }
+
+  .results-count {
+    font-size: 13px;
+    color: var(--s-muted);
+    margin-bottom: 12px;
+  }
+
+  .results-count strong { color: var(--s-blue-dark); }
+
+  .no-results {
+    background: white;
+    border-radius: var(--radius-card);
+    padding: 40px;
+    text-align: center;
+    color: var(--s-muted);
+    font-size: 14px;
+  }
+
+  /* Result cards */
+  .result-card {
+    background: white;
+    border-radius: var(--radius-card);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .result-card .card-header {
+    background: var(--s-blue-dark);
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .card-header .schurter-pn {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .card-header .series-badge {
+    font-size: 11px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 20px;
+    padding: 3px 10px;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+
+  .card-header .links {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .card-header a {
+    color: rgba(255,255,255,0.85);
+    font-size: 12px;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: var(--radius);
+    padding: 3px 10px;
+    transition: background 0.15s;
+  }
+
+  .card-header a:hover { background: rgba(255,255,255,0.15); color: white; }
+
+  .card-body {
+    padding: 16px 20px;
+  }
+
+  .equiv-banner {
+    background: var(--s-green-pale);
+    border: 1px solid #a9dfbf;
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--s-green);
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .xref-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  .xref-item {
+    border: 1px solid var(--s-border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+  }
+
+  .xref-item .supplier {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--s-muted);
+    margin-bottom: 4px;
+  }
+
+  .xref-item .part-num {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--s-text);
+    word-break: break-all;
+  }
+
+  .xref-item .part-num.na {
+    color: #bdc3c7;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 12px;
+  }
+
+  .xref-item.highlight {
+    background: var(--s-blue-pale);
+    border-color: var(--s-blue-light);
+  }
+
+  .xref-item.highlight .supplier { color: var(--s-blue-mid); }
+  .xref-item.highlight .part-num { color: var(--s-blue-dark); }
+
+  .match-indicator {
+    display: inline-block;
+    background: #fef9e7;
+    border: 1px solid #f9e79f;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #d68910;
+    padding: 1px 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .supplier-tag {
+    display: inline-block;
+    background: var(--s-blue-pale);
+    color: var(--s-blue-dark);
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    margin-bottom: 14px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo-text">SCHURTER</span>
+  <span class="title">PPTC Cross Reference Tool</span>
+</header>
+
+<div class="main">
+
+  <div class="search-card">
+    <h2>Find Cross Reference</h2>
+    <div class="search-row">
+      <div class="field">
+        <label>Part Number (any supplier)</label>
+        <input type="text" id="searchInput" placeholder="e.g. 3-161-388, nanoSMDC012F, 1206L012 …" autocomplete="off">
+      </div>
+      <div class="field" style="max-width:200px;">
+        <label>Filter by Series</label>
+        <select id="seriesFilter">
+          <option value="">All Series</option>
+        </select>
+      </div>
+      <button class="btn" onclick="doSearch()">Search</button>
+      <button class="btn btn-clear" onclick="clearSearch()">Clear</button>
+    </div>
+  </div>
+
+  <div id="resultsCount" class="results-count" style="display:none;"></div>
+  <div id="results"></div>
+
+</div>
+
+<script>
+const SUPPLIERS = [
+  'Schurter PN',
+  'Schurter Equivalent',
+  'Littelfuse(PolySwitch)',
+  'Bourns',
+  'Polytronics',
+  'Littlefuse(PBL)',
+  'Fuzetec'
+];
+
+const SUPPLIER_LABELS = {
+  'Schurter PN': 'Schurter PN',
+  'Schurter Equivalent': 'Schurter Equiv.',
+  'Littelfuse(PolySwitch)': 'Littelfuse (PolySwitch)',
+  'Bourns': 'Bourns',
+  'Polytronics': 'Polytronics',
+  'Littlefuse(PBL)': 'Littelfuse (PBL)',
+  'Fuzetec': 'Fuzetec'
+};
+
+// Schurter datasheet base URL pattern
+function datasheetUrl(schurterPN) {
+  return `https://www.schurter.com/en/datasheet/${encodeURIComponent(schurterPN)}`;
+}
+
+function productUrl(schurterPN) {
+  return `https://www.schurter.com/en/search?q=${encodeURIComponent(schurterPN)}`;
+}
+
+const DATA = [{"series":"PFTL 0603 Series","Schurter PN":"3-161-366","Schurter Equivalent":"","Littelfuse(PolySwitch)":"femtoSMDC010F","Bourns":"MF-FSMF010X","Polytronics":"SMD0603P010TF","Littlefuse(PBL)":"0603L010","Fuzetec":"FSMD010-0603-R"},{"series":"PFTL 0603 Series","Schurter PN":"3-161-367","Schurter Equivalent":"","Littelfuse(PolySwitch)":"femtoSMDC020F","Bourns":"MF-FSMF020X","Polytronics":"SMD0603P020TF","Littlefuse(PBL)":"0603L020","Fuzetec":"FSMD020-0603-R"},{"series":"PFTL 0603 Series","Schurter PN":"3-161-368","Schurter Equivalent":"","Littelfuse(PolySwitch)":"femtoSMDC035F","Bourns":"MF-FSMF035X","Polytronics":"SMD0603P035TF","Littlefuse(PBL)":"0603L035","Fuzetec":"—"},{"series":"PFTL 0603 Series","Schurter PN":"3-161-369","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-FSMF050X","Polytronics":"SMD0603P050TF","Littlefuse(PBL)":"0603L050","Fuzetec":"—"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-370","Schurter Equivalent":"","Littelfuse(PolySwitch)":"picoSMDC010S","Bourns":"MF-PSMF010X","Polytronics":"SMD0805P010TF","Littlefuse(PBL)":"0805L010","Fuzetec":"FSMD010-0805-R"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-371","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-PSMF010/24X","Polytronics":"SMD0805P010TF/24","Littlefuse(PBL)":"0805L010/24","Fuzetec":"—"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-372","Schurter Equivalent":"","Littelfuse(PolySwitch)":"PicoSMDC020S","Bourns":"MF-PSMF020X","Polytronics":"SMD0805P020TF","Littlefuse(PBL)":"0805L020","Fuzetec":"FSMD020-0805-R"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-373","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD0805P020TF/24","Littlefuse(PBL)":"0805L020/24","Fuzetec":"—"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-374","Schurter Equivalent":"","Littelfuse(PolySwitch)":"picoSMDC035S","Bourns":"MF-PSMF035X","Polytronics":"SMD0805P035TF","Littlefuse(PBL)":"0805L035","Fuzetec":"FSMD035-0805-R"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-375","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-376","Schurter Equivalent":"","Littelfuse(PolySwitch)":"picoSMDC050S","Bourns":"MF-PSMF050X","Polytronics":"SMD0805P050TF","Littlefuse(PBL)":"0805L050","Fuzetec":"FSMD050-0805R"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-377","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-378","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-379","Schurter Equivalent":"","Littelfuse(PolySwitch)":"picoSMDC075S","Bourns":"MF-PSMF075X","Polytronics":"SMD0805P075TF","Littlefuse(PBL)":"0805L075","Fuzetec":"FSMD075-0805R"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-380","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD0805P100TF","Littlefuse(PBL)":"0805L100","Fuzetec":"FSMD100-0805R"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-381","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-382","Schurter Equivalent":"","Littelfuse(PolySwitch)":"picoSMDC110S","Bourns":"MF-PSMF110X","Polytronics":"SMD0805P110TF","Littlefuse(PBL)":"0805L110","Fuzetec":"—"},{"series":"PFTL 0805 Series","Schurter PN":"3-161-383","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-384","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD1206D005TF","Littlefuse(PBL)":"—","Fuzetec":"FSMD005-1206-R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-385","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-NSMF005/60X","Polytronics":"—","Littlefuse(PBL)":"1206L005/60","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-386","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD1206D010TF","Littlefuse(PBL)":"—","Fuzetec":"FSMD010-1206-R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-387","Schurter Equivalent":"","Littelfuse(PolySwitch)":"nanoSMDC010F","Bourns":"MF-NSMF010/60X","Polytronics":"—","Littlefuse(PBL)":"1206L010/60","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-388","Schurter Equivalent":"PFNF.012","Littelfuse(PolySwitch)":"nanoSMDC012F","Bourns":"MF-NSMF012","Polytronics":"SMD1206D012TF","Littlefuse(PBL)":"1206L012","Fuzetec":"FSMD012-1206-R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-389","Schurter Equivalent":"PFNF.020","Littelfuse(PolySwitch)":"nanoSMDC020F","Bourns":"MF-NSMF020","Polytronics":"SMD1206D020TF","Littlefuse(PBL)":"1206L020","Fuzetec":"FSMD020-1206-R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-390","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-NSMF020X","Polytronics":"SMD1206D020TF/30","Littlefuse(PBL)":"1206L020/30","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-391","Schurter Equivalent":"","Littelfuse(PolySwitch)":"nanoSMDC025F","Bourns":"—","Polytronics":"SMD1206D025TF","Littlefuse(PBL)":"1206L025","Fuzetec":"FSMD025-1206-R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-392","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-NSMF025/24X","Polytronics":"SMD1206D025TF/24","Littlefuse(PBL)":"1206L025/24","Fuzetec":"FSMD025-24-1206-R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-393","Schurter Equivalent":"PFNF.035","Littelfuse(PolySwitch)":"nanoSMDC035F","Bourns":"MF-NSMF035","Polytronics":"SMD1206D035TF","Littlefuse(PBL)":"1206L035","Fuzetec":"FSMD035-1206-R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-394","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD1206D035TF/16","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-395","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-NSMF035/30X","Polytronics":"SMD1206D035TF/30","Littlefuse(PBL)":"1206L035/30","Fuzetec":"FSMD035-30-1206R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-396","Schurter Equivalent":"PFNF.050","Littelfuse(PolySwitch)":"nanoSMDC50F/13.2","Bourns":"MF-NSMF050","Polytronics":"SMD1206D050TF","Littlefuse(PBL)":"1206L050","Fuzetec":"FSMD050-1206-R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-397","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-NSMF050/16X","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-398","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-399","Schurter Equivalent":"PFNF.075","Littelfuse(PolySwitch)":"nanoSMDC075F","Bourns":"MF-NSMF075","Polytronics":"SMD1206D075TF","Littlefuse(PBL)":"1206L075","Fuzetec":"FSMD075-1206R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-400","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD1206D075TF/13.2","Littlefuse(PBL)":"1206L075/13.2","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-401","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-NSMF075/16X","Polytronics":"SMD1206D075TF/16","Littlefuse(PBL)":"1206L075/16","Fuzetec":"FSMD075-16-1206R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-402","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-403","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"FSMD100-1206R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-404","Schurter Equivalent":"PFNF.110","Littelfuse(PolySwitch)":"nanoSMDC110F","Bourns":"MF-NSMF110","Polytronics":"SMD1206D110TF","Littlefuse(PBL)":"1206L110","Fuzetec":"FSMD110-1206R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-405","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-406","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-407","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-408","Schurter Equivalent":"PFNF.150","Littelfuse(PolySwitch)":"nanoSMDC150F","Bourns":"MF-NSMF150","Polytronics":"SMD1206D150TF","Littlefuse(PBL)":"1206L150","Fuzetec":"FSMD150-1206R"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-409","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-410","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 1206 Series","Schurter PN":"3-161-411","Schurter Equivalent":"PFNF.200","Littelfuse(PolySwitch)":"nanoSMDC200F","Bourns":"MF-NSMF200","Polytronics":"SMD1206D200TF","Littlefuse(PBL)":"1206L200","Fuzetec":"FSMD200-1206R"},{"series":"PFTL 1210 Series","Schurter PN":"3-161-412","Schurter Equivalent":"PFUF.005","Littelfuse(PolySwitch)":"microSMD005F","Bourns":"MF-USMF005","Polytronics":"SMD1210P005TF","Littlefuse(PBL)":"1210L005","Fuzetec":"FSMD005-1210-R"},{"series":"PFTL 1210 Series","Schurter PN":"3-161-413","Schurter Equivalent":"PFUF.010","Littelfuse(PolySwitch)":"micros MD01 OF","Bourns":"MF-USMF010","Polytronics":"SMD1210P010TF","Littlefuse(PBL)":"1210L010","Fuzetec":"FSMD010-1210-R"},{"series":"PFTL 1210 Series","Schurter PN":"3-161-414","Schurter Equivalent":"PFUF.020","Littelfuse(PolySwitch)":"—","Bourns":"MF-USMF020","Polytronics":"SMD1210P020TF","Littlefuse(PBL)":"1210L020","Fuzetec":"FSMD020-1210-R"},{"series":"PFTL 1210 Series","Schurter PN":"3-161-415","Schurter Equivalent":"PFUF.035","Littelfuse(PolySwitch)":"microSMD035F","Bourns":"MF-USMF035","Polytronics":"SMD1210P035TF","Littlefuse(PBL)":"1210L035","Fuzetec":"FSMD035-1210-R"},{"series":"PFTL 1210 Series","Schurter PN":"3-161-416","Schurter Equivalent":"PFUF.050","Littelfuse(PolySwitch)":"microSMD050F","Bourns":"MF-USMF050","Polytronics":"SMD1210P050TF","Littlefuse(PBL)":"1210L050","Fuzetec":"FSMD050-1210-R"},{"series":"PFTL 1210 Series","Schurter PN":"3-161-417","Schurter Equivalent":"PFUF.075","Littelfuse(PolySwitch)":"microSMD075F","Bourns":"MF-USMF075","Polytronics":"SMD1210P075TF","Littlefuse(PBL)":"1210L075","Fuzetec":"FSMD075-1210-R"},{"series":"PFTL 1210 Series","Schurter PN":"3-161-418","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD1210P075TF/24","Littlefuse(PBL)":"—","Fuzetec":"FSMD075-24-1210R"},{"series":"PFTL 1210 Series","Schurter PN":"3-161-419","Schurter Equivalent":"PFUF.110","Littelfuse(PolySwitch)":"microSMDUOF","Bourns":"MF-USMF110","Polytronics":"SMD1210P110TFT","Littlefuse(PBL)":"1210L110","Fuzetec":"FSMD110-1210R"},{"series":"PFTL 1210 Series","Schurter PN":"3-161-420","Schurter Equivalent":"PFUF.150","Littelfuse(PolySwitch)":"microSMD150F","Bourns":"MF-USMF150","Polytronics":"SMD1210P150TFT","Littlefuse(PBL)":"1210L150","Fuzetec":"FSMD150-1210R"},{"series":"PFTL 1210 Series","Schurter PN":"3-161-421","Schurter Equivalent":"","Littelfuse(PolySwitch)":"microSMD200F","Bourns":"—","Polytronics":"SMD1210P200TF","Littlefuse(PBL)":"1210L200","Fuzetec":"FSMD200-1210R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-422","Schurter Equivalent":"PFMF.010","Littelfuse(PolySwitch)":"miniSMDC010F","Bourns":"MF-MFMF010","Polytronics":"SMD1812P010TF","Littlefuse(PBL)":"1812L010","Fuzetec":"FSMD010-R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-423","Schurter Equivalent":"PFMF.014","Littelfuse(PolySwitch)":"miniSMDC014F","Bourns":"MF-MFMF014","Polytronics":"SMD1812P014TF","Littlefuse(PBL)":"1812L014","Fuzetec":"FSMD014-R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-424","Schurter Equivalent":"PFMF.020","Littelfuse(PolySwitch)":"miniSMDC020F","Bourns":"MF-MFMF020","Polytronics":"SMD1812P020TF","Littlefuse(PBL)":"1812L020","Fuzetec":"FSMD020-R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-425","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-MFMF020/60","Polytronics":"SMD1812P020TF‑60","Littlefuse(PBL)":"1812L020/60MR","Fuzetec":"FSMD020-60-R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-426","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF‑MSMF035‑30","Polytronics":"SMD1812P035TF‑30","Littlefuse(PBL)":"1812L035/30MR","Fuzetec":"FSMD035‑1812‑30‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-427","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-MFMF035-60","Polytronics":"SMD1812P035TF‑60","Littlefuse(PBL)":"1812L035/60MR","Fuzetec":"FSMD035‑1812‑60‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-428","Schurter Equivalent":"PFMF.050","Littelfuse(PolySwitch)":"miniSMDC050F","Bourns":"MF-MFMF050","Polytronics":"SMD1812P050TF","Littlefuse(PBL)":"1812L050","Fuzetec":"FSMD050-R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-429","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF‑MSMF050‑30","Polytronics":"SMD1812P050TF‑30","Littlefuse(PBL)":"1812L050/30MR","Fuzetec":"FSMD050‑1812‑30‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-430","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF‑MSMF050‑60","Polytronics":"SMD1812P050TF‑60","Littlefuse(PBL)":"1812L050/60MR","Fuzetec":"FSMD050‑1812‑60‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-431","Schurter Equivalent":"PFMF.075","Littelfuse(PolySwitch)":"miniSMDC075F","Bourns":"MF-MFMF075","Polytronics":"SMD1812P075TF","Littlefuse(PBL)":"1812L075","Fuzetec":"FSMD075-R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-432","Schurter Equivalent":"PFMF.075.24","Littelfuse(PolySwitch)":"miniSMDC075F/24","Bourns":"MF-MFMF075/24","Polytronics":"SMD1812P075TF/24","Littlefuse(PBL)":"1812L075/24","Fuzetec":"FSMD075-24R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-433","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD1812P075TF/33","Littlefuse(PBL)":"1812L075/33","Fuzetec":"FSMD075-33R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-434","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDCHOF","Bourns":"MF-MFMF110","Polytronics":"SMD1812P110TF","Littlefuse(PBL)":"1812L110","Fuzetec":"FSMD110-R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-435","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDC110F","Bourns":"MF‑MSMF110‑08","Polytronics":"SMD1812P110TF‑08","Littlefuse(PBL)":"1812L110/08MR","Fuzetec":"FSMD110‑1812‑08‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-436","Schurter Equivalent":"PFMF.110.16","Littelfuse(PolySwitch)":"miniSMDC110F/16","Bourns":"MF-MFMF110/16","Polytronics":"SMD1812P110TF/16","Littlefuse(PBL)":"1812L110/16","Fuzetec":"FSMD110-16-R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-437","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDC110F/24","Bourns":"MF-MFMF110/24X","Polytronics":"SMD1812P110TF/24","Littlefuse(PBL)":"1812L110/24","Fuzetec":"FSMD110-24R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-438","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF‑MSMF110‑30","Polytronics":"SMD1812P110TF‑30","Littlefuse(PBL)":"1812L110/30MR","Fuzetec":"—"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-439","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDC125F","Bourns":"MF-MFMF125","Polytronics":"SMD1812P125TF/6,4L","Littlefuse(PBL)":"1812L125","Fuzetec":"FSMD125-R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-440","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDC125F/16","Bourns":"MF‑MSMF125‑16","Polytronics":"SMD1812P125TF‑16","Littlefuse(PBL)":"1812L125/16MR","Fuzetec":"FSMD125‑1812‑16‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-441","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF‑MSMF125‑30","Polytronics":"SMD1812P125TF‑30","Littlefuse(PBL)":"1812L125/30MR","Fuzetec":"FSMD125‑1812‑30‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-442","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDC150F","Bourns":"MF-MFMF150","Polytronics":"SMD1812P150TF/8","Littlefuse(PBL)":"1812L150","Fuzetec":"FSMD150-R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-443","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDC150F/12","Bourns":"—","Polytronics":"SMD1812P150TF/12","Littlefuse(PBL)":"1812L150/12","Fuzetec":"FSMD150-12R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-444","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDC150F/24","Bourns":"MF-MFMF150/24","Polytronics":"SMD1812P150TF/24","Littlefuse(PBL)":"1812L150/24","Fuzetec":"FSMD150-24R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-445","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF‑MSMF150‑30","Polytronics":"SMD1812P150TF‑30","Littlefuse(PBL)":"1812L150/30MR","Fuzetec":"FSMD150‑1812‑30‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-446","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDC200F","Bourns":"MF-MFMF200","Polytronics":"SMD1812P200TFT","Littlefuse(PBL)":"1812L200","Fuzetec":"FSMD200R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-447","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF‑MSMF200‑12","Polytronics":"SMD1812P200TF‑12","Littlefuse(PBL)":"1812L200/12MR","Fuzetec":"FSMD200‑1812‑12‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-448","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-449","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF‑MSMF200‑24","Polytronics":"SMD1812P200TF‑24","Littlefuse(PBL)":"1812L200/24MR","Fuzetec":"FSMD200‑1812‑24‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-450","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF‑MSMF250‑16","Polytronics":"SMD1812P250TF‑16","Littlefuse(PBL)":"1812L250/16MR","Fuzetec":"FSMD250‑1812‑16‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-451","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDC260F","Bourns":"MF-MFMF260","Polytronics":"SMD1812P260TFT","Littlefuse(PBL)":"1812L260","Fuzetec":"FSMD260R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-452","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDC260F/12","Bourns":"MF‑MSMF260‑12","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"FSMD260‑1812‑12‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-453","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDC260F/16","Bourns":"MF‑MSMF260‑16","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"FSMD260‑1812‑16‑R"},{"series":"PFTL 1812 Series","Schurter PN":"3-161-454","Schurter Equivalent":"","Littelfuse(PolySwitch)":"miniSMDC300F","Bourns":"—","Polytronics":"SMD1812P300TFT","Littlefuse(PBL)":"1812L300","Fuzetec":"FSMD300R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-455","Schurter Equivalent":"PFSM.030","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD2920P030TF","Littlefuse(PBL)":"2920L030","Fuzetec":"FSMD030-2920-R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-456","Schurter Equivalent":"PFSM.050","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD2920P050TF","Littlefuse(PBL)":"2920L050","Fuzetec":"FSMD050-2920-R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-457","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF‑SM075/60‑2","Polytronics":"SMD2920P075TF/60","Littlefuse(PBL)":"2920L075/60MR","Fuzetec":"FSMD075-2920-60-R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-458","Schurter Equivalent":"PFSM.100.33","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD2920P100TF","Littlefuse(PBL)":"2920L100","Fuzetec":"FSMD100-2920-R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-459","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD2920P100TF‑60","Littlefuse(PBL)":"—","Fuzetec":"FSMD100‑2920‑60‑R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-460","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD2920P125TF‑60","Littlefuse(PBL)":"2920L110/60MR","Fuzetec":"FSMD110‑2920‑60‑R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-461","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD2920P150TF","Littlefuse(PBL)":"2920L150","Fuzetec":"FSMD150-2920-R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-462","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-LSMD185/33X","Polytronics":"SMD2920P185TF","Littlefuse(PBL)":"2920L185","Fuzetec":"FSMD185-2920-R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-463","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-LSMD200/24X","Polytronics":"SMD2920P200TF/24","Littlefuse(PBL)":"2920L200/24MR","Fuzetec":"FSMD200‑2920‑24‑R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-464","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"SMD2920P200TF","Littlefuse(PBL)":"2920L200/33MR","Fuzetec":"FSMD200‑2920‑33‑R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-465","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-LSMF260X","Polytronics":"SMD2920P260TF","Littlefuse(PBL)":"2920L260","Fuzetec":"FSMD260-2920-R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-466","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-LSMF300XT","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"FSMD300-24-2920-R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-467","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-LSMF400/12X","Polytronics":"SMD2920P400TF/15","Littlefuse(PBL)":"2920L400/16MR","Fuzetec":"FSMD400‑2920‑16‑R"},{"series":"PFTL 2920 Series","Schurter PN":"3-161-468","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-264","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-265","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-266","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-267","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-268","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-269","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-270","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-271","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-272","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-273","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-274","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-275","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-276","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-277","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-278","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-279","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-280","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-281","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-282","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF075","Bourns":"—","Polytronics":"RLD06P075BF","Littlefuse(PBL)":"06R075B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-283","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF075","Bourns":"—","Polytronics":"RLD06P075BF","Littlefuse(PBL)":"06R075B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-284","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF090","Bourns":"—","Polytronics":"RLD16P090BF","Littlefuse(PBL)":"16R090B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-285","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF090","Bourns":"—","Polytronics":"RLD16P090BF","Littlefuse(PBL)":"16R090B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-286","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF110","Bourns":"—","Polytronics":"RLD16P100BF","Littlefuse(PBL)":"16R110B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-287","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF110","Bourns":"—","Polytronics":"RLD16P100BF","Littlefuse(PBL)":"16R110B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-288","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF120","Bourns":"—","Polytronics":"RLD06P120BF","Littlefuse(PBL)":"06R120B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-289","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF120","Bourns":"—","Polytronics":"RLD06P120BF","Littlefuse(PBL)":"06R120B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-290","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF135","Bourns":"—","Polytronics":"RLD16P135BF","Littlefuse(PBL)":"16R135B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-291","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF135","Bourns":"—","Polytronics":"RLD16P135BF","Littlefuse(PBL)":"16R135B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-292","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF155","Bourns":"—","Polytronics":"RLD06P155BF","Littlefuse(PBL)":"06R155B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-293","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF155","Bourns":"—","Polytronics":"RLD06P155BF","Littlefuse(PBL)":"06R155B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-294","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF160","Bourns":"—","Polytronics":"RLD16P160BF","Littlefuse(PBL)":"16R160B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-295","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF160","Bourns":"—","Polytronics":"RLD16P160BF","Littlefuse(PBL)":"16R160B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-296","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF185","Bourns":"—","Polytronics":"RLD16P185BF","Littlefuse(PBL)":"16R185B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-297","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF185","Bourns":"—","Polytronics":"RLD16P185BF","Littlefuse(PBL)":"16R185B","Fuzetec":"—"},{"series":"PFTA Series","Schurter PN":"3-161-298","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF250","Bourns":"—","Polytronics":"RLD16P250BF","Littlefuse(PBL)":"16R250B","Fuzetec":"FRG250-16F"},{"series":"PFTA Series","Schurter PN":"3-161-299","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUSBF250","Bourns":"—","Polytronics":"RLD16P250BF","Littlefuse(PBL)":"16R250B","Fuzetec":"FRG250-16F"},{"series":"PFTA Series","Schurter PN":"3-161-300","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RGEF300","Bourns":"MF-RG300","Polytronics":"RLD16P300GF","Littlefuse(PBL)":"16R300G","Fuzetec":"FRG300-16F"},{"series":"PFTA Series","Schurter PN":"3-161-301","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RGEF300","Bourns":"MF-RG300","Polytronics":"RLD16P300GF","Littlefuse(PBL)":"16R300G","Fuzetec":"FRG300-16F"},{"series":"PFTA Series","Schurter PN":"3-161-302","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RGEF400","Bourns":"—","Polytronics":"RLD16P400GF","Littlefuse(PBL)":"16R400G","Fuzetec":"FRG400-16F"},{"series":"PFTA Series","Schurter PN":"3-161-303","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RGEF400","Bourns":"—","Polytronics":"RLD16P400GF","Littlefuse(PBL)":"16R400G","Fuzetec":"FRG400-16F"},{"series":"PFTA Series","Schurter PN":"3-161-304","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RGEF500","Bourns":"MF-RG500","Polytronics":"RLD16P500GF","Littlefuse(PBL)":"16R500G","Fuzetec":"FRG500-16F"},{"series":"PFTA Series","Schurter PN":"3-161-305","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RGEF500","Bourns":"MF-RG500","Polytronics":"RLD16P500GF","Littlefuse(PBL)":"16R500G","Fuzetec":"FRG500-16F"},{"series":"PFTA Series","Schurter PN":"3-161-306","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RGEF600","Bourns":"—","Polytronics":"RLD16P600GF","Littlefuse(PBL)":"16R600G","Fuzetec":"FRG600-16F"},{"series":"PFTA Series","Schurter PN":"3-161-307","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RGEF700","Bourns":"—","Polytronics":"RLD16P700GF","Littlefuse(PBL)":"16R700G","Fuzetec":"FRG700-16F"},{"series":"PFTA Series","Schurter PN":"3-161-308","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RGEF800","Bourns":"—","Polytronics":"RLD16P800GF","Littlefuse(PBL)":"16R800G","Fuzetec":"FRG800-16F"},{"series":"PFTA Series","Schurter PN":"3-161-309","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RGEF900","Bourns":"—","Polytronics":"RLD16P900GF","Littlefuse(PBL)":"16R900G","Fuzetec":"FRG900-16F"},{"series":"PFTA Series","Schurter PN":"3-161-310","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RGEF1200","Bourns":"—","Polytronics":"RLD16P1200GF","Littlefuse(PBL)":"16R1200G","Fuzetec":"FRG1200-16F"},{"series":"PFTB Series","Schurter PN":"3-161-311","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUEF090","Bourns":"MF-R090-0-9","Polytronics":"RLD30P090UF","Littlefuse(PBL)":"30R090","Fuzetec":"FRU090-30F"},{"series":"PFTB Series","Schurter PN":"3-161-312","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUEF090","Bourns":"MF-R090-0-9","Polytronics":"RLD30P090UF","Littlefuse(PBL)":"30R090","Fuzetec":"FRU090-30F"},{"series":"PFTB Series","Schurter PN":"3-161-313","Schurter Equivalent":"PFRA.110","Littelfuse(PolySwitch)":"RUEF110","Bourns":"MF-R110","Polytronics":"RLD30P110UF","Littlefuse(PBL)":"30R110","Fuzetec":"FRU110-30F"},{"series":"PFTB Series","Schurter PN":"3-161-314","Schurter Equivalent":"PFRA.110","Littelfuse(PolySwitch)":"RUEF110","Bourns":"MF-R110","Polytronics":"RLD30P110UF","Littlefuse(PBL)":"30R110","Fuzetec":"FRU110-30F"},{"series":"PFTB Series","Schurter PN":"3-161-315","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUEF120","Bourns":"MF-R120","Polytronics":"RLD30P120UF","Littlefuse(PBL)":"30R120","Fuzetec":"FRU120-30F"},{"series":"PFTB Series","Schurter PN":"3-161-316","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RUEF120","Bourns":"MF-R120","Polytronics":"RLD30P120UF","Littlefuse(PBL)":"30R120","Fuzetec":"FRU120-30F"},{"series":"PFTB Series","Schurter PN":"3-161-317","Schurter Equivalent":"PFRA.135","Littelfuse(PolySwitch)":"RUEF135","Bourns":"MF-R135","Polytronics":"RLD30P135UF","Littlefuse(PBL)":"30R135","Fuzetec":"FRU135-30F"},{"series":"PFTB Series","Schurter PN":"3-161-318","Schurter Equivalent":"PFRA.135","Littelfuse(PolySwitch)":"RUEF135","Bourns":"MF-R135","Polytronics":"RLD30P135UF","Littlefuse(PBL)":"30R135","Fuzetec":"FRU135-30F"},{"series":"PFTB Series","Schurter PN":"3-161-319","Schurter Equivalent":"PFRA.160","Littelfuse(PolySwitch)":"RUEF160","Bourns":"MF-R160","Polytronics":"RLD30P160UF","Littlefuse(PBL)":"30R160","Fuzetec":"FRU160-30F"},{"series":"PFTB Series","Schurter PN":"3-161-320","Schurter Equivalent":"PFRA.160","Littelfuse(PolySwitch)":"RUEF160","Bourns":"MF-R160","Polytronics":"RLD30P160UF","Littlefuse(PBL)":"30R160","Fuzetec":"FRU160-30F"},{"series":"PFTB Series","Schurter PN":"3-161-321","Schurter Equivalent":"PFRA.185","Littelfuse(PolySwitch)":"RUEF185","Bourns":"MF-R185","Polytronics":"RLD30P185UF","Littlefuse(PBL)":"30R185","Fuzetec":"FRU185-30F"},{"series":"PFTB Series","Schurter PN":"3-161-322","Schurter Equivalent":"PFRA.185","Littelfuse(PolySwitch)":"RUEF185","Bourns":"MF-R185","Polytronics":"RLD30P185UF","Littlefuse(PBL)":"30R185","Fuzetec":"FRU185-30F"},{"series":"PFTB Series","Schurter PN":"3-161-323","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-R200","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTB Series","Schurter PN":"3-161-324","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"MF-R200","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTB Series","Schurter PN":"3-161-325","Schurter Equivalent":"PFRA.250","Littelfuse(PolySwitch)":"RUEF250","Bourns":"MF-R250","Polytronics":"RLD30P250UF","Littlefuse(PBL)":"30R250","Fuzetec":"FRU250-30F"},{"series":"PFTB Series","Schurter PN":"3-161-326","Schurter Equivalent":"PFRA.250","Littelfuse(PolySwitch)":"RUEF250","Bourns":"MF-R250","Polytronics":"RLD30P250UF","Littlefuse(PBL)":"30R250","Fuzetec":"FRU250-30F"},{"series":"PFTB Series","Schurter PN":"3-161-327","Schurter Equivalent":"PFRA.300","Littelfuse(PolySwitch)":"RUEF300","Bourns":"MF-R300","Polytronics":"RLD30P300UF","Littlefuse(PBL)":"30R300","Fuzetec":"FRU300-30F"},{"series":"PFTB Series","Schurter PN":"3-161-328","Schurter Equivalent":"PFRA.300","Littelfuse(PolySwitch)":"RUEF300","Bourns":"MF-R300","Polytronics":"RLD30P300UF","Littlefuse(PBL)":"30R300","Fuzetec":"FRU300-30F"},{"series":"PFTB Series","Schurter PN":"3-161-329","Schurter Equivalent":"PFRA.400","Littelfuse(PolySwitch)":"RUEF400","Bourns":"MF-R400","Polytronics":"RLD30P400UF","Littlefuse(PBL)":"30R400","Fuzetec":"FRU400-30F"},{"series":"PFTB Series","Schurter PN":"3-161-330","Schurter Equivalent":"PFRA.500","Littelfuse(PolySwitch)":"RUEF500","Bourns":"MF-R500","Polytronics":"RLD30P500UF","Littlefuse(PBL)":"30R500","Fuzetec":"FRU500-30F"},{"series":"PFTB Series","Schurter PN":"3-161-331","Schurter Equivalent":"PFRA.600","Littelfuse(PolySwitch)":"RUEF600","Bourns":"MF-R600","Polytronics":"RLD30P600UF","Littlefuse(PBL)":"30R600","Fuzetec":"FRU600-30F"},{"series":"PFTB Series","Schurter PN":"3-161-332","Schurter Equivalent":"PFRA.700","Littelfuse(PolySwitch)":"RUEF700","Bourns":"MF-R700","Polytronics":"RLD30P700UF","Littlefuse(PBL)":"30R700","Fuzetec":"FRU700-30F"},{"series":"PFTB Series","Schurter PN":"3-161-333","Schurter Equivalent":"PFRA.800","Littelfuse(PolySwitch)":"RUEF800","Bourns":"MF-R800","Polytronics":"RLD30P800UF","Littlefuse(PBL)":"30R800","Fuzetec":"FRU800-30F"},{"series":"PFTB Series","Schurter PN":"3-161-334","Schurter Equivalent":"PFRA.900","Littelfuse(PolySwitch)":"RUEF900","Bourns":"MF-R900","Polytronics":"RLD30P900UF","Littlefuse(PBL)":"30R900","Fuzetec":"FRU900-30F"},{"series":"PFTC Series","Schurter PN":"3-161-335","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RXEF005","Bourns":"MF-R005","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-336","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RXEF005","Bourns":"MF-R005","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-337","Schurter Equivalent":"PFRA.010","Littelfuse(PolySwitch)":"RXEF010","Bourns":"MF-R010","Polytronics":"RLD60P010XF","Littlefuse(PBL)":"60R010","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-338","Schurter Equivalent":"PFRA.010","Littelfuse(PolySwitch)":"RXEF010","Bourns":"MF-R010","Polytronics":"RLD60P010XF","Littlefuse(PBL)":"60R010","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-339","Schurter Equivalent":"PFRA.017","Littelfuse(PolySwitch)":"RXEF017","Bourns":"MF-R017","Polytronics":"RLD60P017XF","Littlefuse(PBL)":"60R017","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-340","Schurter Equivalent":"PFRA.017","Littelfuse(PolySwitch)":"RXEF017","Bourns":"MF-R017","Polytronics":"RLD60P017XF","Littlefuse(PBL)":"60R017","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-341","Schurter Equivalent":"PFRA.020","Littelfuse(PolySwitch)":"RXEF020","Bourns":"MF-R020","Polytronics":"RLD60P020XF","Littlefuse(PBL)":"60R020","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-342","Schurter Equivalent":"PFRA.020","Littelfuse(PolySwitch)":"RXEF020","Bourns":"MF-R020","Polytronics":"RLD60P020XF","Littlefuse(PBL)":"60R020","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-343","Schurter Equivalent":"PFRA.025","Littelfuse(PolySwitch)":"RXEF025","Bourns":"MF-R025","Polytronics":"RLD60P025XF","Littlefuse(PBL)":"60R025","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-344","Schurter Equivalent":"PFRA.025","Littelfuse(PolySwitch)":"RXEF025","Bourns":"MF-R025","Polytronics":"RLD60P025XF","Littlefuse(PBL)":"60R025","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-345","Schurter Equivalent":"PFRA.030","Littelfuse(PolySwitch)":"RXEF030","Bourns":"MF-R030","Polytronics":"RLD60P030XF","Littlefuse(PBL)":"60R030","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-346","Schurter Equivalent":"PFRA.030","Littelfuse(PolySwitch)":"RXEF030","Bourns":"MF-R030","Polytronics":"RLD60P030XF","Littlefuse(PBL)":"60R030","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-347","Schurter Equivalent":"PFRA.040","Littelfuse(PolySwitch)":"RXEF040","Bourns":"MF-R040","Polytronics":"RLD60P040XF","Littlefuse(PBL)":"60R040","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-348","Schurter Equivalent":"PFRA.040","Littelfuse(PolySwitch)":"RXEF040","Bourns":"MF-R040","Polytronics":"RLD60P040XF","Littlefuse(PBL)":"60R040","Fuzetec":"—"},{"series":"PFTC Series","Schurter PN":"3-161-349","Schurter Equivalent":"PFRA.050","Littelfuse(PolySwitch)":"RXEF050","Bourns":"MF-R050","Polytronics":"RLD60P050XF","Littlefuse(PBL)":"60R050","Fuzetec":"FRK050-60F"},{"series":"PFTC Series","Schurter PN":"3-161-350","Schurter Equivalent":"PFRA.050","Littelfuse(PolySwitch)":"RXEF050","Bourns":"MF-R050","Polytronics":"RLD60P050XF","Littlefuse(PBL)":"60R050","Fuzetec":"FRK050-60F"},{"series":"PFTC Series","Schurter PN":"3-161-351","Schurter Equivalent":"PFRA.065","Littelfuse(PolySwitch)":"RXEF065","Bourns":"MF-R065","Polytronics":"RLD60P065XF","Littlefuse(PBL)":"60R065","Fuzetec":"FRK065-60F"},{"series":"PFTC Series","Schurter PN":"3-161-352","Schurter Equivalent":"PFRA.065","Littelfuse(PolySwitch)":"RXEF065","Bourns":"MF-R065","Polytronics":"RLD60P065XF","Littlefuse(PBL)":"60R065","Fuzetec":"FRK065-60F"},{"series":"PFTC Series","Schurter PN":"3-161-353","Schurter Equivalent":"PFRA.075","Littelfuse(PolySwitch)":"RXEF075","Bourns":"MF-R075","Polytronics":"RLD60P075XF","Littlefuse(PBL)":"60R075","Fuzetec":"FRK075-60F"},{"series":"PFTC Series","Schurter PN":"3-161-354","Schurter Equivalent":"PFRA.075","Littelfuse(PolySwitch)":"RXEF075","Bourns":"MF-R075","Polytronics":"RLD60P075XF","Littlefuse(PBL)":"60R075","Fuzetec":"FRK075-60F"},{"series":"PFTC Series","Schurter PN":"3-161-355","Schurter Equivalent":"PFRA.090","Littelfuse(PolySwitch)":"RXEF090","Bourns":"MF-R090","Polytronics":"RLD60P090XF","Littlefuse(PBL)":"60R090","Fuzetec":"FRK090-60F"},{"series":"PFTC Series","Schurter PN":"3-161-356","Schurter Equivalent":"PFRA.090","Littelfuse(PolySwitch)":"RXEF090","Bourns":"MF-R090","Polytronics":"RLD60P090XF","Littlefuse(PBL)":"60R090","Fuzetec":"FRK090-60F"},{"series":"PFTC Series","Schurter PN":"3-161-357","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RXEF110","Bourns":"MF-R110","Polytronics":"RLD60P110XF","Littlefuse(PBL)":"60R110","Fuzetec":"FRK110-60F"},{"series":"PFTC Series","Schurter PN":"3-161-358","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RXEF110","Bourns":"MF-R110","Polytronics":"RLD60P110XF","Littlefuse(PBL)":"60R110","Fuzetec":"FRK110-60F"},{"series":"PFTC Series","Schurter PN":"3-161-359","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RXEF135","Bourns":"MF-R135","Polytronics":"RLD60P135XF","Littlefuse(PBL)":"60R135","Fuzetec":"FRK135-60F"},{"series":"PFTC Series","Schurter PN":"3-161-360","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RXEF160","Bourns":"MF-R160","Polytronics":"RLD60P160XF","Littlefuse(PBL)":"60R160","Fuzetec":"FRK160-60F"},{"series":"PFTC Series","Schurter PN":"3-161-361","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RXEF185","Bourns":"MF-R185","Polytronics":"RLD60P185XF","Littlefuse(PBL)":"60R185","Fuzetec":"FRK185-60F"},{"series":"PFTC Series","Schurter PN":"3-161-362","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RXEF250","Bourns":"MF-R250","Polytronics":"RLD60P250XF","Littlefuse(PBL)":"60R250","Fuzetec":"FRK250-60F"},{"series":"PFTC Series","Schurter PN":"3-161-363","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RXEF300","Bourns":"MF-R300","Polytronics":"RLD60P300XF","Littlefuse(PBL)":"60R300","Fuzetec":"FRK300-60F"},{"series":"PFTC Series","Schurter PN":"3-161-364","Schurter Equivalent":"","Littelfuse(PolySwitch)":"RXEF375","Bourns":"MF-R375","Polytronics":"RLD60P375XF","Littlefuse(PBL)":"60R375","Fuzetec":"FRK375-60F"},{"series":"PFTC Series","Schurter PN":"3-161-365","Schurter Equivalent":"","Littelfuse(PolySwitch)":"—","Bourns":"—","Polytronics":"—","Littlefuse(PBL)":"—","Fuzetec":"FRK500-60F"}];
+
+// Populate series filter
+const seriesFilter = document.getElementById('seriesFilter');
+const allSeries = [...new Set(DATA.map(r => r.series))];
+allSeries.forEach(s => {
+  const opt = document.createElement('option');
+  opt.value = s;
+  opt.textContent = s;
+  seriesFilter.appendChild(opt);
+});
+
+// Search on Enter
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+
+function normalize(str) {
+  return str.toLowerCase().replace(/[\s\-\.\/]/g, '');
+}
+
+function doSearch() {
+  const q = normalize(document.getElementById('searchInput').value.trim());
+  const series = document.getElementById('seriesFilter').value;
+  const container = document.getElementById('results');
+  const countEl = document.getElementById('resultsCount');
+
+  if (!q && !series) {
+    container.innerHTML = '';
+    countEl.style.display = 'none';
+    return;
+  }
+
+  let matches = DATA.filter(row => {
+    if (series && row.series !== series) return false;
+    if (!q) return true;
+    return SUPPLIERS.some(sup => {
+      const val = row[sup] || '';
+      return val !== '—' && normalize(val).includes(q);
+    });
+  });
+
+  countEl.style.display = 'block';
+
+  if (matches.length === 0) {
+    countEl.innerHTML = '';
+    container.innerHTML = `<div class="no-results">No results found for "<strong>${escHtml(document.getElementById('searchInput').value)}</strong>"</div>`;
+    return;
+  }
+
+  countEl.innerHTML = `<strong>${matches.length}</strong> result${matches.length !== 1 ? 's' : ''} found`;
+  container.innerHTML = matches.map(row => renderCard(row, q)).join('');
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('seriesFilter').value = '';
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('resultsCount').style.display = 'none';
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderCard(row, q) {
+  const pn = row['Schurter PN'];
+  const equiv = row['Schurter Equivalent'];
+
+  let equivBanner = '';
+  if (equiv && equiv !== '—' && equiv !== '') {
+    equivBanner = `<div class="equiv-banner">&#9654; Schurter Equivalent: <strong>${escHtml(equiv)}</strong></div>`;
+  }
+
+  const items = SUPPLIERS.map(sup => {
+    const val = row[sup] || '';
+    const isNA = !val || val === '—' || val === '';
+    const isSchurter = sup === 'Schurter PN' || sup === 'Schurter Equivalent';
+    const isMatch = q && !isNA && normalize(val).includes(q);
+
+    if (sup === 'Schurter Equivalent') return ''; // shown in banner
+
+    return `<div class="xref-item${isSchurter ? ' highlight' : ''}">
+      <div class="supplier">${escHtml(SUPPLIER_LABELS[sup])}${isMatch ? '<span class="match-indicator">MATCH</span>' : ''}</div>
+      <div class="part-num${isNA ? ' na' : ''}">${isNA ? 'n/a' : escHtml(val)}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="result-card">
+    <div class="card-header">
+      <span class="schurter-pn">${escHtml(pn)}</span>
+      <span class="series-badge">${escHtml(row.series)}</span>
+      <div class="links">
+        <a href="https://www.schurter.com/en/datasheet/${encodeURIComponent(pn)}" target="_blank">Datasheet</a>
+        <a href="https://www.schurter.com/en/search?q=${encodeURIComponent(pn)}" target="_blank">Product Page</a>
+      </div>
+    </div>
+    <div class="card-body">
+      ${equivBanner}
+      <div class="xref-grid">${items}</div>
+    </div>
+  </div>`;
+}
+</script>
+</body>
+</html>
